@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gridsapi-service
+spec:
+  selector:
+    app: gridsapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 6001
+      nodePort: 30021
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gridsapi
+  labels:
+    app: gridsapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gridsapi
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: gridsapi
+    spec:
+      containers:
+      - name: gridsapi
+        image: 172.16.19.151:5000/gridsapi:1.0.0
+        ports:
+        - containerPort: 6002
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: DB_CONNECTIONSTRING
+          valueFrom:
+            configMapKeyRef:
+              name: ecolconfigmap
+              key: CONNECTIONSTRING
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: ecolsecret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ecolsecret
+              key: dbpassword
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "500m"
+

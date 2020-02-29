@@ -1,0 +1,12 @@
+version: "3.3"
+services:
+  gridsapi:
+    image: migutak/gridsapi:1.0.0
+    container_name: gridsapi
+    restart: on-failure
+    environment:
+      - DB_USER=ecol
+      - DB_PASSWORD=ecol
+      - DB_CONNECTIONSTRING=52.117.54.217:1521/ORCLCDB.localdomain
+    ports:
+      - "6002:6002"
